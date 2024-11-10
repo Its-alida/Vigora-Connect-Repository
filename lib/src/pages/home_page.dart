@@ -6,7 +6,6 @@ import 'package:first_app/src/pages/user_profile_page.dart';
 import 'package:first_app/src/pages/user_insights.dart';
 import 'package:first_app/src/pages/streeva.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'period_tracking_screen.dart';
@@ -171,7 +170,8 @@ class _HomePageState extends State<HomePage> {
       case 3:
         return const CommunityPage();
       case 4:
-        return const Chatbot();
+        // return  Chatbot();
+        return const GenerativeAISample();
       default:
         return Container();
     }

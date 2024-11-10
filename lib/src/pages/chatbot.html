@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            background: #f0f0f0;
+        }
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin: 10px;
+            max-width: 70%;
+        }
+        .user-message {
+            align-self: flex-end;
+            background-color: #007bff;
+            color: white;
+        }
+        .bot-message {
+            align-self: flex-start;
+            background-color: #e0e0e0;
+            color: black;
+        }
+        .message-content {
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+        }
+        .input-area {
+            display: flex;
+            padding: 10px;
+            background: white;
+            border-top: 1px solid #ccc;
+        }
+        .input-area input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-right: 10px;
+        }
+        .input-area button {
+            padding: 10px 20px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="messages" id="messages"></div>
+        <div class="input-area">
+            <input type="text" id="query-input" placeholder="Enter a message">
+            <button id="submit-button">Send</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('submit-button').addEventListener('click', async () => {
+            const query = document.getElementById('query-input').value;
+            if (query.trim() === '') return;
+            addMessage(query, true);
+
+            try {
+                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyDPx_uA48sM9OoCG1SXrS76OPJ5jfGmtXs', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [
+                            {
+                                parts: [{ text: query }]
+                            }
+                        ]
+                    }),
+                });
+
+                if (!response.ok) throw new Error('Network response was not ok');
+
+                const data = await response.json();
+                const responseText = data.candidates[0].content.parts[0].text;
+                addMessage(responseText, false);
+
+                const imageUrl = data.candidates[0].content.image;
+                if (imageUrl) addImage(imageUrl);
+            } catch (error) {
+                addMessage('Error: ' + error.message, false);
+            }
+        });
+
+        function addMessage(text, isUser) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message', isUser ? 'user-message' : 'bot-message');
+
+            const messageContent = document.createElement('div');
+            messageContent.classList.add('message-content');
+            messageContent.textContent = text;
+
+            messageContainer.appendChild(messageContent);
+            document.getElementById('messages').appendChild(messageContainer);
+            document.getElementById('query-input').value = '';
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+
+        function addImage(imageUrl) {
+            const messageContainer = document.createElement('div');
+            messageContainer.classList.add('message', 'bot-message');
+
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.style.maxWidth = '100%';
+            img.style.borderRadius = '10px';
+
+            messageContainer.appendChild(img);
+            document.getElementById('messages').appendChild(messageContainer);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        }
+    </script>
+</body>
+</html>
