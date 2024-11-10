@@ -11,7 +11,7 @@ import firebase_auth
 import firebase_core
 import google_sign_in_ios
 import path_provider_foundation
-import sqflite
+import sqflite_darwin
 import url_launcher_macos
 import video_player_avfoundation
 
